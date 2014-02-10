@@ -1,0 +1,90 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Hierarchy</title>
+
+    <link href="/styles/kendo.common.min.css" rel="stylesheet" />
+    <link id="theme-sheet" href="/styles/kendo.default.min.css" rel="stylesheet" />
+
+    <script src="/scripts/jquery-1.10.2.min.js"></script>
+    <script src="/scripts/kendo.all.min.js"></script>
+
+    <script>
+        var treeviewdata = [{ id: 85797, Name: "Accounts", Code: "25ROOT", HasChildren: true, Children: [] }, { id: 85850, Name: "Caltex", Code: "21000012", HasChildren: false, Children: [] }, { id: 85870, Name: "Caltex", Code: "31000012", HasChildren: false, Children: [] }, { id: 85879, Name: "This is a test", Code: "12345", HasChildren: false, Children: [] }, { id: 85880, Name: "Drakes", Code: "1200003", HasChildren: false, Children: [] }, { id: 85881, Name: "Cornetts", Code: "1200004", HasChildren: false, Children: [] }, { id: 85882, Name: "Richies", Code: "1200005", HasChildren: false, Children: [] }, { id: 85883, Name: "Caltex InDirect", Code: "21000334", HasChildren: false, Children: [] }, { id: 85884, Name: "Caltex Direct", Code: "21000335", HasChildren: false, Children: [] }, { id: 85885, Name: "Caltex Scottsdale", Code: "21000336", HasChildren: false, Children: [] }, { id: 85886, Name: "ZZZ Whoelsalers North", Code: "390001", HasChildren: false, Children: [] }, { id: 85887, Name: "ZZZ Whoelsalers South", Code: "390002", HasChildren: false, Children: [] }, { id: 85888, Name: "ZZZ Whoelsalers East", Code: "390003", HasChildren: false, Children: [] }, { id: 85889, Name: "ZZZ Whoelsalers West", Code: "390004", HasChildren: false, Children: [] }, { id: 85890, Name: "ZZZ Wholesalers", Code: "39000", HasChildren: false, Children: [] }, { id: 85891, Name: "Caltex InDirect", Code: "31000334", HasChildren: false, Children: [] }, { id: 85892, Name: "Caltex Direct", Code: "31000335", HasChildren: false, Children: [] }, { id: 85893, Name: "Caltex Earls Court", Code: "31000336", HasChildren: false, Children: [] }];
+        (function () { alert(treeviewdata); }());
+    </script>
+
+</head>
+<body>
+
+    <div id="tree"></div>
+
+    <script>
+        var localData = [
+          {
+              id: 1, text: "Node 1", hasChildren: true, items: [
+              {
+                  id: 101, text: "Node 1.1", hasChildren: true, items: [
+                  { id: 10101, text: "Node 1.1.1" }
+                  ]
+              }
+              ]
+          },
+          { id: 2, hasChildren: true, text: "Node 2" },
+          { id: 3, hasChildren: true, text: "Node 3" }
+        ];
+
+        function get(data, id) {
+            if (!id) {
+                return data;
+            } else {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].id == id) {
+                        return data[i].items;
+                    } else if (data[i].items) {
+                        var result = get(data[i].items, id);
+                        if (result) return result;
+                    }
+                }
+            }
+        }
+
+        var homogeneous = new kendo.data.HierarchicalDataSource({
+            transport: {
+                read: function (options) {
+                    var id = options.data.id;
+                    var data = get(localData, id);
+                    if (data) {
+                        options.success(data);
+                    } else {
+                        // mock call to server with static data
+                        // one can use $.ajax request and call options.success in success handler
+                        setTimeout(function () {
+                            options.success([
+                              { id: id + 1, text: "Remote node 1", hasChildren: false },
+                              { id: id + 2, text: "Remote node 2", hasChildren: true }
+                            ]);
+                        }, 1000);
+                    }
+                }
+            },
+            schema: {
+                model: {
+                    id: "id"
+                }
+            }
+        });
+
+        $("#tree").kendoTreeView({
+            dataSource: homogeneous
+        });
+
+    </script>
+</body>
+
+</html>
